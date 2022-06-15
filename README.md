@@ -5,12 +5,19 @@ Sistema desenvolvido em Python para comunicar diretamente com o Spotify e retorn
 
 ![image](https://user-images.githubusercontent.com/70926962/173472682-a3116578-e8af-44aa-9b3b-421e4fc5d20c.png)
 
-O sistema (escrito em python) utiliza da lib Requests para realizar a comunicação e a autenticação com a API do Spotify. Após a conecção estabelecida, o frontend
-(escrito com jquery) faz requisições do tipo GET com o backend para atualizar em tempo real o nome da música, nome do artista, duração, tempo atual, capa do
-albúm e letra da música. A letra é obtida a partir da API da plataforma Vagalume.
+O sistema foi escrito em Python, usando a lib Flask para criação do servidor. A comunicação com a API do Spotify acontece a partir do frontend utilizando a biblioteca para JavaScript Jquery, realizando todas as requisições para validação do Token de segurança e obtenção dos valores (nome da música, artista, capa do album, duração e tempo atual). A letra foi obtida a partir da API do Vagalume e o processo também foi todo realizado pelo frontend. 
 
 ----------------------------------
 
-!!! O sistema possui um certo delay (devido a conecção com o servidor do Heroku), por isso, em caso de não atualizar em tempo real, por favor, atualize a página !!!
+<h2>DETALHE</h2>
 
-<a href="https://autolyricsspotify.herokuapp.com/">Dê uma olhada apartir deste link!</a>
+Segundo palavras do Spotify:
+
+<h4>
+"If your app is in development mode up to 25 Spotify users can install and use your app. These users must be explicitly added under the section "Users and Access" before they can authenticate with your app. If you’d like to ship your app to a broader audience, let us know by submitting a quota extension request."
+</h4>
+
+Como o status do app é setado como "Development Mode" ("Please note that we will not grant a quota extension for home automation, school, or hobby projects", ou seja, não oficializam projetos de "hobbystas"), apenas 25 usuários podem usar o sistema simultaneamente e todos estes devem ser referenciados explicitamente no menu "Users and Access". Por isso, usuários fora dessa lista (infelizmente) não obterão nenhum resultado usando o app. 
+
+
+De qualquer maneira, o sistema pode ser acessado <a href="https://autolyricsspotify.herokuapp.com/">por aqui</a>.
