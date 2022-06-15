@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{{ musica }}</title>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: white;
+        }
+    </style>
+
+</head>
+
+<body style="background-color:#181818">
+
+    <div class="flex justify-between mx-10 pt-10"
+        style="z-index: 9999; position: sticky; background-color:#181818; top: 0px;">
+        <div>
+            <p class="text-6xl mb-4" style="color:#1ed760">Agora tocando:</p>
+            <div class="flex">
+                <p id='musica' class="text-5xl" on>--</p>
+                <p id='cantor' class="text-2xl ml-3 mt-4" style="color:#8c8c8c"></p>
+            </div>
+            <div class="flex gap-5 mt-10">
+                <p id='atual'></p>
+                <progress value="0" max="0" id="bar" style="width:400px"></progress>
+                <p id='total'></p>
+            </div>
+        </div>
+
+        <div class="">
+            <img src="" alt="" id="imagem" style="height:210px">
+        </div>
+    </div>
+
+    <div class="flex gap-10 mt-10 ml-10">
+
+        <div>
+            <p id="letra" class="text-2xl pb-10" style="white-space: pre-line"></p>
+        </div>
+
+    </div>
+
+
+    <footer class="text-center">
+        <a href="https://github.com/Ieafyy">
+            <p> Made by • Raphael </p>
+        </a>
+        <p> 2022 </p>
+
+    </footer>
+
+
+
+    <script>
+
+        client_id = '1d804622168c49a89b24816de65be818'
+        client_id_secret = 'b53748cdb6e7407fb5bd0a66c858936d'
+        token = ''
+        flag = ''
+        flag_bool = 0
+        ft = 1
+        artista = ''
+        musica = ''
+        letra = ''
+
+        $(document).ready(() => {
+
+            let url = window.location.href
+            code = url.slice(54)
+
+            validate = client_id + ':' + client_id_secret
+            validate = btoa(validate)
+
+            params = {
+                'grant_type': 'authorization_code',
+                'code': code,
+                'redirect_uri': 'https://autolyricsspotify.herokuapp.com/approval'
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: 'https://accounts.spotify.com/api/token?',
+                headers: {
+                    'Authorization': 'Basic ' + validate,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: params,
+                success: (result) => {
+                    token = result['access_token']
+                    console.log(result)
+                    setInterval(ajaxloop, 1000)
+                }
+            })
+        })
+
+        function tomin(e) {
+            var m = Math.floor(e % 3600 / 60).toString().padStart(2, '0'),
+                s = Math.floor(e % 60).toString().padStart(2, '0');
+
+            return m + ':' + s;
+
+        }
+
+
+        function ajaxloop() {
+            console.log(token)
+            $.ajax({
+                method: 'GET',
+                url: 'https://api.spotify.com/v1/me/player/currently-playing',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + token.toString()
+                },
+                success: (request) => {
+                    
+                    $('#musica').html(request['item']['name'])
+                    if(flag_bool == 0){
+                        flag = request['item']['name']
+                        flag_bool = 1
+                    }
+                    $('#cantor').html(request['item']['artists'][0]['name'])
+                    $('#atual').html(tomin(request['progress_ms']/1000))
+                    $('#total').html(tomin(request['item']['duration_ms']/1000))
+                    $('#imagem').attr('src', request['item']['album']['images'][0]['url'])
+                    $('#bar').attr('max', request['item']['duration_ms'])
+                    $('#bar').attr('value', request['progress_ms'])
+                    $(document).prop('title', request['item']['name'])
+                    
+                    artista = request['item']['artists'][0]['name']
+                    musica = request['item']['name']
+
+                    if(musica.includes('-')) musica = musica.split('-')[0]
+                    if(musica.includes('/')) musica = musica.split('/')[0]
+
+                    if(flag != request['item']['name'] || ft == 1){
+                        
+                        $.ajax({
+                            method: 'GET',
+                            url: `https://api.vagalume.com.br/search.php?art=${artista}&mus=${musica}&apikey=e0facd0333b3c47b566adefb2575eeee`,
+                            success: (lyrics) => $('#letra').html((lyrics['mus'][0]['text']))
+                        })
+                        
+                        
+                        ft = 0
+                        flag_bool = 0
+                    }
+
+                },
+            })
+
+
+           
+
+        }
+
+
+    </script>
+
+
+</body>
+
+</html>
